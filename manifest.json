@@ -1,0 +1,40 @@
+{
+    "name": "Gestión PRA-R",
+    "short_name": "PRA-R",
+    "description": "Gestión de Programas de Recuperación y Refuerzo - IES Virgen de Villadiego",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "orientation": "any",
+    "background_color": "#1e40af",
+    "theme_color": "#1e40af",
+    "lang": "es",
+    "categories": ["education", "productivity"],
+    "icons": [
+        {
+            "src": "icons/favicon-16x16.png",
+            "sizes": "16x16",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "icons/favicon-32x32.png",
+            "sizes": "32x32",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "icons/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/apple-touch-icon.png",
+            "sizes": "1024x1024",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [],
+    "prefer_related_applications": false
+}
