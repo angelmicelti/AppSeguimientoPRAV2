@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="64" fill="#1e40af"/>
+  <g fill="white" transform="translate(256,256)">
+    <!-- School building -->
+    <rect x="-80" y="-60" width="160" height="120" rx="4"/>
+    <rect x="-90" y="-70" width="180" height="20" rx="3"/>
+    <!-- Roof triangle -->
+    <polygon points="0,-140 -100,-70 100,-70"/>
+    <!-- Door -->
+    <rect x="-18" y="0" width="36" height="60" rx="2" fill="#1e40af"/>
+    <!-- Windows -->
+    <rect x="-60" y="-45" width="30" height="25" rx="2" fill="#1e40af"/>
+    <rect x="30" y="-45" width="30" height="25" rx="2" fill="#1e40af"/>
+    <!-- Clock -->
+    <circle cx="0" cy="-110" r="15" fill="none" stroke="white" stroke-width="3"/>
+    <line x1="0" y1="-110" x2="0" y2="-118" stroke="white" stroke-width="2.5"/>
+    <line x1="0" y1="-110" x2="6" y2="-110" stroke="white" stroke-width="2.5"/>
+    <!-- Flag -->
+    <line x1="0" y1="-140" x2="0" y2="-165" stroke="white" stroke-width="3"/>
+    <polygon points="0,-165 25,-157 0,-149" fill="white"/>
+  </g>
+</svg>
