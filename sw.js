@@ -1,7 +1,7 @@
 // Service Worker - Gestión PRA-R
-// Versión: 1.4.0
+// Versión: 1.5.0
 
-const CACHE_NAME = 'pra-r-cache-v1.4';
+const CACHE_NAME = 'pra-r-cache-v1.5';
 
 // Archivos esenciales para cachear en la instalación
 const PRECACHE_URLS = [
