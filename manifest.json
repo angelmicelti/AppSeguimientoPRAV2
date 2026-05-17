@@ -2,7 +2,7 @@
     "name": "Gestión PRA-R",
     "short_name": "PRA-R",
     "description": "Gestión de Programas de Recuperación y Refuerzo - IES Virgen de Villadiego",
-    "start_url": "/index.html",
+    "start_url": "./index.html",
     "display": "standalone",
     "orientation": "any",
     "background_color": "#1e40af",
