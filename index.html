@@ -385,7 +385,7 @@
                 <i class="fa-solid fa-school text-2xl"></i>
                 <div>
                     <h1 class="text-xl font-bold leading-tight">Gestión de Programas de Recuperación (PRA-R)</h1>
-                    <p class="text-xs text-blue-200">Departamento de Tecnología del IES Virgen de Villadiego</p>
+                    <p class="text-xs text-blue-200">Departamento de Tecnología del IES Virgen de Villadiego · <span class="font-semibold">Versión 2</span></p>
                 </div>
             </div>
             <div class="flex gap-4">
@@ -5730,12 +5730,6 @@
                             }
                         });
                     });
-                    
-                    // Si no hay controlador, forzar recarga para activar el nuevo SW
-                    if (!navigator.serviceWorker.controller) {
-                        console.log('SW sin controlador, recargando para activar...');
-                        window.location.reload();
-                    }
                 })
                 .catch(function(err) {
                     console.log('Error al registrar ServiceWorker: ', err);
