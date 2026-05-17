@@ -2187,9 +2187,22 @@
                 populateExportCourseSelect: function() {
                     const select = document.getElementById('export-course-select');
                     if (!select) return;
-                    const courses = app.state.courses || [];
+                    let courses = app.state.courses || [];
                     const current = app.state.currentCourse || app.firebase.getDefaultCourse();
+                    // Asegurar que el curso actual esté en la lista
+                    if (!courses.includes(current)) {
+                        courses = courses.concat([current]);
+                    }
+                    // Ordenar cursos descendente (el más reciente primero)
+                    courses.sort((a, b) => b.localeCompare(a));
                     select.innerHTML = '';
+                    if (courses.length === 0) {
+                        const opt = document.createElement('option');
+                        opt.value = '';
+                        opt.textContent = 'No hay cursos disponibles';
+                        select.appendChild(opt);
+                        return;
+                    }
                     courses.forEach(c => {
                         const opt = document.createElement('option');
                         opt.value = c;
@@ -2348,7 +2361,7 @@
                                 await app.firebase.loadCourseData();
                                 app.modules.config.renderCourses();
                                 app.modules.config.renderStudents();
-                                app.modules.config.populateExportCourseSelect();
+                                app.data.populateExportCourseSelect();
                                 
                                 app.views.notify('Backup completo importado: ' + courseCount + ' curso(s), ' + totalImported + ' alumno(s)', 'success');
                                 input.value = '';
@@ -2397,7 +2410,7 @@
                                     await app.firebase.loadCourseData();
                                     app.modules.config.renderCourses();
                                     app.modules.config.renderStudents();
-                                    app.modules.config.populateExportCourseSelect();
+                                    app.data.populateExportCourseSelect();
                                     
                                     app.views.notify('Curso ' + courseYear + ': ' + students.length + ' alumno(s) importados', 'success');
                                     input.value = '';
@@ -5267,6 +5280,7 @@
                         if (!app.state.courses) app.state.courses = [];
                         app.state.courses.push(courseYear);
                         app.modules.config.renderCourses();
+                        app.data.populateExportCourseSelect();
                         app.views.notify('Curso ' + courseYear + ' creado', 'success');
                     } catch(e) {
                         app.views.notify('Error al crear curso', 'error');
@@ -5281,7 +5295,7 @@
                     app.modules.config.renderStudents();
                     app.modules.config.renderCourseSwitcher();
                     app.modules.config.updateCourseDisplay();
-                    app.modules.config.populateExportCourseSelect();
+                    app.data.populateExportCourseSelect();
                     // Update delete-all course label
                     const deleteLabel = document.getElementById('delete-all-course-label');
                     if (deleteLabel) deleteLabel.textContent = courseYear;
@@ -5297,6 +5311,7 @@
                         await db.ref('courses/' + courseYear).remove();
                         app.state.courses = app.state.courses.filter(c => c !== courseYear);
                         app.modules.config.renderCourses();
+                        app.data.populateExportCourseSelect();
                         app.views.notify('Curso eliminado', 'success');
                     } catch(e) {
                         app.views.notify('Error al eliminar curso', 'error');
@@ -5313,7 +5328,7 @@
                         this.renderCourses();
                         this.renderStudents();
                         this.updateCourseDisplay();
-                        this.populateExportCourseSelect();
+                        app.data.populateExportCourseSelect();
                         
                         // Update delete-all course label
                         const deleteLabel = document.getElementById('delete-all-course-label');
