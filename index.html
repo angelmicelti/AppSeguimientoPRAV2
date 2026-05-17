@@ -389,6 +389,10 @@
                 </div>
             </div>
             <div class="flex gap-4">
+                <!-- Botón Instalar App (PWA) - solo visible cuando es posible instalar -->
+                <button id="btn-install-pwa" onclick="app.pwa.install()" class="hidden hover:text-green-300 transition hover-scale" title="Instalar aplicación">
+                    <i class="fa-solid fa-download text-xl"></i>
+                </button>
                 <button onclick="app.router.navigate('config')" class="hover:text-blue-200 transition hover-scale" title="Configuración">
                     <i class="fa-solid fa-gear text-xl"></i>
                 </button>
@@ -5657,7 +5661,48 @@
         };
 
 
+        // --- PWA INSTALL ---
+        pwa: {
+            deferredPrompt: null,
+            init: function() {
+                const self = this;
+                // Capturar el evento beforeinstallprompt
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    self.deferredPrompt = e;
+                    // Mostrar el botón de instalar
+                    const btn = document.getElementById('btn-install-pwa');
+                    if (btn) btn.classList.remove('hidden');
+                    console.log('[PWA] Instalación disponible');
+                });
+                // Ocultar botón si ya está instalada
+                window.addEventListener('appinstalled', () => {
+                    self.deferredPrompt = null;
+                    const btn = document.getElementById('btn-install-pwa');
+                    if (btn) btn.classList.add('hidden');
+                    app.views.notify('Aplicación instalada correctamente', 'success');
+                });
+            },
+            install: function() {
+                if (!this.deferredPrompt) {
+                    return app.views.notify('La instalación no está disponible en este navegador. Prueba desde Chrome en escritorio o Android.', 'info');
+                }
+                this.deferredPrompt.prompt();
+                this.deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('[PWA] Usuario aceptó la instalación');
+                    } else {
+                        console.log('[PWA] Usuario rechazó la instalación');
+                    }
+                    this.deferredPrompt = null;
+                    const btn = document.getElementById('btn-install-pwa');
+                    if (btn) btn.classList.add('hidden');
+                });
+            }
+        },
+
         window.onload = function() {
+            app.pwa.init();
             app.auth.checkAuth();
         };
 
@@ -5670,12 +5715,14 @@
                 .then(function(registration) {
                     console.log('ServiceWorker registrado con éxito: ', registration.scope);
                     
+                    // Forzar actualización del Service Worker inmediatamente
+                    registration.update();
+                    
                     // Verificar actualizaciones periódicamente
                     registration.addEventListener('updatefound', () => {
                         const newWorker = registration.installing;
                         newWorker.addEventListener('statechange', () => {
                             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // Nueva versión disponible
                                 console.log('Nueva versión disponible!');
                                 if (confirm('¡Hay una nueva versión disponible! ¿Recargar para actualizar?')) {
                                     window.location.reload();
@@ -5683,6 +5730,12 @@
                             }
                         });
                     });
+                    
+                    // Si no hay controlador, forzar recarga para activar el nuevo SW
+                    if (!navigator.serviceWorker.controller) {
+                        console.log('SW sin controlador, recargando para activar...');
+                        window.location.reload();
+                    }
                 })
                 .catch(function(err) {
                     console.log('Error al registrar ServiceWorker: ', err);
