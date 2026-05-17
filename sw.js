@@ -126,8 +126,31 @@ self.addEventListener('fetch', event => {
         return;
     }
 
-    // --- Recursos estáticos locales: Cache First ---
+    // --- Recursos estáticos locales ---
     if (url.origin === self.location.origin) {
+        // HTML y Service Worker: SIEMPRE desde la red (para actualizar la app)
+        if (event.request.url.endsWith('.html') || 
+            event.request.url.endsWith('.js') ||
+            event.request.url.endsWith('.json') ||
+            event.request.pathname === '/' ||
+            event.request.pathname.endsWith('/')) {
+            event.respondWith(
+                fetch(event.request)
+                    .then(response => {
+                        if (response.ok) {
+                            const responseClone = response.clone();
+                            caches.open(CACHE_NAME).then(cache => {
+                                cache.put(event.request, responseClone).catch(() => {});
+                            });
+                        }
+                        return response;
+                    })
+                    .catch(() => caches.match(event.request))
+            );
+            return;
+        }
+
+        // Imágenes e iconos: Cache First
         event.respondWith(
             caches.match(event.request)
                 .then(cachedResponse => {
@@ -136,11 +159,10 @@ self.addEventListener('fetch', event => {
                     }
                     return fetch(event.request)
                         .then(response => {
-                            // Cachear la nueva respuesta
                             if (response.ok) {
                                 const responseClone = response.clone();
                                 caches.open(CACHE_NAME).then(cache => {
-                                    cache.put(event.request, responseClone);
+                                    cache.put(event.request, responseClone).catch(() => {});
                                 });
                             }
                             return response;
