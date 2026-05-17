@@ -2184,11 +2184,23 @@
                 toggleExportMode: function() {
                     // No necesita hacer nada especial, solo gestiona el radio visual
                 },
-                populateExportCourseSelect: function() {
+                populateExportCourseSelect: async function() {
                     const select = document.getElementById('export-course-select');
                     if (!select) return;
                     let courses = app.state.courses || [];
                     const current = app.state.currentCourse || app.firebase.getDefaultCourse();
+                    // Si no hay cursos en memoria, intentar recargar desde Firebase
+                    if (courses.length === 0) {
+                        try {
+                            const coursesSnap = await db.ref('courses').once('value');
+                            if (coursesSnap.exists()) {
+                                courses = Object.keys(coursesSnap.val());
+                                app.state.courses = courses;
+                            }
+                        } catch(e) {
+                            console.warn('Error recargando cursos para exportación:', e);
+                        }
+                    }
                     // Asegurar que el curso actual esté en la lista
                     if (!courses.includes(current)) {
                         courses = courses.concat([current]);
@@ -5379,6 +5391,11 @@
                                 targetChevron.classList.add('fa-chevron-down');
                             }
                         }
+                        
+                        // Si se abre el acordeón de importación/exportación, actualizar el desplegable
+                        if (id === 'config-data-content' && target.classList.contains('open')) {
+                            app.data.populateExportCourseSelect();
+                        }
                     },
                     renderUsers: async function() {
                         const isAdmin = app.state.currentUser && app.state.currentUser.role === 'admin';
@@ -5584,6 +5601,8 @@
                         
                         this.updateCourseDisplay();
                         this.renderCourseSwitcher();
+                        // Actualizar también el desplegable de exportación
+                        app.data.populateExportCourseSelect();
                     },
                     renderCourseSwitcher: function() {
                         const container = document.getElementById('config-course-switcher');
