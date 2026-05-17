@@ -614,13 +614,18 @@
                 </button>
             </div>
 
-            <!-- Current Course Display -->
+            <!-- Current Course Display & Switcher -->
             <div class="bg-white rounded-lg shadow p-4 mb-6 soft-shadow">
-                <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-graduation-cap text-2xl text-blue-600"></i>
-                    <div>
-                        <p class="text-sm text-gray-500">Curso escolar activo</p>
-                        <p class="text-lg font-bold text-gray-800" id="config-current-course">--</p>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-graduation-cap text-2xl text-blue-600"></i>
+                        <div>
+                            <p class="text-sm text-gray-500">Curso escolar activo</p>
+                            <p class="text-lg font-bold text-gray-800" id="config-current-course">--</p>
+                        </div>
+                    </div>
+                    <div id="config-course-switcher" class="flex items-center gap-2">
+                        <!-- Renderizado por JS: botones para cambiar de curso -->
                     </div>
                 </div>
             </div>
@@ -746,14 +751,22 @@
                             </div>
                         </div>
 
-                        <!-- Delete All Students -->
-                        <div class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                            <div class="flex items-center gap-3 mb-2">
-                                <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
-                                <h3 class="font-bold text-red-700">Borrado Masivo de Alumnado</h3>
-                            </div>
-                            <p class="text-sm text-gray-700 mb-3">Esto eliminará TODOS LOS ALUMNOS y sus datos asociados. Esta acción NO se puede deshacer.</p>
-                            <button onclick="app.modules.students.deleteAllStudents()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition btn-primary ripple hover-lift">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accordion 5: Borrado Masivo de Alumnado -->
+            <div class="bg-white rounded-lg shadow mb-4 soft-shadow">
+                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.modules.config.toggleConfigAccordion('config-delete-all-content')">
+                    <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-300" id="config-delete-all-chevron"></i>
+                    <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
+                    <h3 class="font-bold text-red-700">Borrado Masivo de Alumnado</h3>
+                </div>
+                <div id="config-delete-all-content" class="config-accordion-content">
+                    <div class="p-4 border-t">
+                        <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                            <p class="text-sm text-gray-700 mb-3">Esto eliminará <strong>TODOS LOS ALUMNOS</strong> y sus datos asociados (materias, criterios, actividades, calificaciones). Esta acción <strong>NO se puede deshacer</strong>.</p>
+                            <button onclick="app.modules.students.deleteAllStudents()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition btn-primary ripple hover-lift">
                                 <i class="fa-solid fa-trash-can mr-2"></i> BORRAR TODO EL ALUMNADO
                             </button>
                         </div>
@@ -1763,7 +1776,19 @@
             },
 
             init: function() {
-                this.data.loadLocal();
+                // Seguridad: asegurar que students sea siempre un array
+                if (!Array.isArray(app.state.students)) {
+                    app.state.students = [];
+                }
+                // loadLocal solo como respaldo si Firebase no cargó datos
+                // (loadCourseData ya sincronizó localStorage si tuvo éxito)
+                if (app.state.students.length === 0) {
+                    this.data.loadLocal();
+                    // Volver a asegurar que sea array tras loadLocal
+                    if (!Array.isArray(app.state.students)) {
+                        app.state.students = [];
+                    }
+                }
                 this.router.init();
                 this.views.updateStudentList();
             },
@@ -1928,11 +1953,16 @@
                 },
 
                 updateStudentList: function() {
-                    const tbody = document.getElementById('student-list-body');
-                    document.getElementById('student-count').innerText = app.state.students.length;
+                    // Usar los IDs correctos del DOM (config-student-count, config-student-list-body)
+                    const tbody = document.getElementById('config-student-list-body');
+                    const countEl = document.getElementById('config-student-count');
+                    if (!tbody || !countEl) return;
+                    
+                    const students = Array.isArray(app.state.students) ? app.state.students : [];
+                    countEl.textContent = students.length;
                     tbody.innerHTML = '';
 
-                    app.state.students.forEach((student, index) => {
+                    students.forEach((student, index) => {
                         const tr = document.createElement('tr');
                         tr.className = "border-b hover:bg-gray-50 transition-all duration-200 fade-in-element";
                         tr.style.animationDelay = `${index * 0.05}s`;
@@ -4741,7 +4771,7 @@
                             document.getElementById('login-screen').classList.add('hidden');
                             document.getElementById('app-content').classList.remove('hidden');
                             
-                            app.firebase.loadCourseData();
+                            await app.firebase.loadCourseData();
                             app.auth.updateHeader();
                             app.init();
                         } else {
@@ -4777,6 +4807,31 @@
                 },
             },
 
+            // --- FIREBASE KEY ENCODING ---
+            // Firebase RTDB does not allow ".", "#", "$", "/", "[", "]" in keys.
+            // We encode dots (.) as middle dots (·, U+00B7) before saving,
+            // and decode them back when loading.
+            encodeFirebaseKeys: function(obj) {
+                if (!obj || typeof obj !== 'object') return obj;
+                if (Array.isArray(obj)) return obj.map(item => app.encodeFirebaseKeys(item));
+                const encoded = {};
+                for (const key of Object.keys(obj)) {
+                    const newKey = key.replace(/\./g, '\u00B7');
+                    encoded[newKey] = app.encodeFirebaseKeys(obj[key]);
+                }
+                return encoded;
+            },
+            decodeFirebaseKeys: function(obj) {
+                if (!obj || typeof obj !== 'object') return obj;
+                if (Array.isArray(obj)) return obj.map(item => app.decodeFirebaseKeys(item));
+                const decoded = {};
+                for (const key of Object.keys(obj)) {
+                    const newKey = key.replace(/\u00B7/g, '.');
+                    decoded[newKey] = app.decodeFirebaseKeys(obj[key]);
+                }
+                return decoded;
+            },
+
             // --- FIREBASE DATA MODULE ---
             firebase: {
                 getDefaultCourse: function() {
@@ -4792,32 +4847,89 @@
                     app.state.currentCourse = course;
                     
                     try {
+                        // 1. Siempre cargar la lista COMPLETA de cursos desde Firebase
+                        const coursesSnap = await db.ref('courses').once('value');
+                        if (coursesSnap.exists()) {
+                            app.state.courses = Object.keys(coursesSnap.val());
+                        }
+                        // Asegurar que el curso actual está en la lista
+                        if (app.state.courses && !app.state.courses.includes(course)) {
+                            app.state.courses.push(course);
+                        }
+                        if (!app.state.courses) app.state.courses = [course];
+                        
+                        // 2. Cargar datos del curso actual
                         const snap = await db.ref('courses/' + course + '/data').once('value');
                         if (snap.exists()) {
                             const data = snap.val();
-                            const currentSettings = app.state.settings;
-                            app.state.students = data.students || [];
-                            app.state.settings = currentSettings;
-                            
-                            const coursesSnap = await db.ref('courses').once('value');
-                            if (coursesSnap.exists()) {
-                                app.state.courses = Object.keys(coursesSnap.val());
-                            } else {
-                                app.state.courses = [course];
+                            // Decodificar claves: · (U+00B7) → . en toda la estructura
+                            let students = app.decodeFirebaseKeys(data.students || []);
+                            // Firebase puede devolver un objeto (clave: alumno) en vez de array
+                            if (students && !Array.isArray(students) && typeof students === 'object') {
+                                students = Object.values(students);
                             }
-                            
-                            app.views.updateStudentList();
+                            if (!Array.isArray(students)) students = [];
+                            app.state.students = students;
                         } else {
                             app.state.students = [];
-                            app.state.courses = [course];
-                            
+                            // Crear estructura vacía para este curso
                             await db.ref('courses/' + course + '/data').set({ students: [] });
-                            
-                            app.views.updateStudentList();
                         }
+                        
+                        // 3. Sincronizar localStorage con datos de Firebase
+                        try {
+                            const dataToSave = {
+                                students: app.state.students,
+                                courses: app.state.courses,
+                                currentCourse: app.state.currentCourse
+                            };
+                            localStorage.setItem('recupData', JSON.stringify(dataToSave));
+                        } catch(e) { console.error('Error syncing localStorage:', e); }
+                        
+                        app.views.updateStudentList();
                     } catch(e) {
                         console.error('Error loading course data:', e);
                         app.views.notify('Error al cargar datos del curso', 'error');
+                    }
+                },
+                // Migrar datos antiguos con claves codificadas (%2E) o con puntos (.)
+                migrateLegacyKeys: async function(course) {
+                    if (!course) course = app.state.currentCourse;
+                    let needsFix = false;
+                    const students = app.state.students;
+                    
+                    // Comprobar si hay claves con %2E o puntos directos
+                    for (const student of students) {
+                        const pc = student.passedCriteria || {};
+                        if (Object.keys(pc).some(k => k.includes('%2E') || k.includes('.'))) { needsFix = true; break; }
+                        if (student.activities) {
+                            for (const act of student.activities) {
+                                const g = act.grades || {};
+                                if (Object.keys(g).some(k => k.includes('%2E') || k.includes('.'))) { needsFix = true; break; }
+                            }
+                        }
+                        if (needsFix) break;
+                    }
+                    
+                    if (!needsFix) return false;
+                    
+                    console.log('[Firebase] Migrando claves con formato antiguo...');
+                    app.views.notify('Migrando formato de datos al nuevo sistema...', 'info');
+                    
+                    try {
+                        const ref = db.ref('courses/' + course + '/data/students');
+                        for (const student of students) {
+                            // Codificar para Firebase: reemplazar . por ·
+                            const encodedStudent = app.encodeFirebaseKeys(student);
+                            await ref.child(student.id).set(encodedStudent);
+                        }
+                        console.log('[Firebase] Migración completada.');
+                        app.views.notify('Datos migrados correctamente. Recargando...', 'success');
+                        return true;
+                    } catch(e) {
+                        console.error('[Firebase] Error migrando claves:', e);
+                        app.views.notify('Error al migrar datos: ' + e.message, 'error');
+                        return false;
                     }
                 },
                 saveCourseData: async function() {
@@ -4825,12 +4937,14 @@
                     if (!course) return;
                     
                     try {
+                        // Codificar claves para Firebase: reemplazar . por · (U+00B7)
+                        const encodedStudents = app.encodeFirebaseKeys(app.state.students);
                         await db.ref('courses/' + course + '/data').set({
-                            students: app.state.students
+                            students: encodedStudents
                         });
                     } catch(e) {
                         console.error('Error saving course data:', e);
-                        app.views.notify('Error al guardar en Firebase', 'error');
+                        app.views.notify('Error al guardar en Firebase: ' + e.message, 'error');
                     }
                 },
                 loadUsers: async function() {
@@ -4964,10 +5078,17 @@
                     }
                 },
                 switchCourse: async function(courseYear) {
+                    if (courseYear === app.state.currentCourse) return;
                     app.state.currentCourse = courseYear;
+                    app.state.students = [];
                     await this.loadCourseData();
                     app.modules.config.renderCourses();
                     app.modules.config.renderStudents();
+                    app.modules.config.renderCourseSwitcher();
+                    app.modules.config.updateCourseDisplay();
+                    // Actualizar label de import/export
+                    const label = document.getElementById('config-data-course-label');
+                    if (label) label.textContent = courseYear;
                     app.views.notify('Curso cambiado a ' + courseYear, 'success');
                 },
                 deleteCourse: async function(courseYear) {
@@ -5010,7 +5131,8 @@
                             'config-users-content',
                             'config-courses-content', 
                             'config-data-content',
-                            'config-students-content'
+                            'config-students-content',
+                            'config-delete-all-content'
                         ];
                         
                         configAccordions.forEach(accId => {
@@ -5222,10 +5344,17 @@
                         const courses = app.state.courses || [];
                         const current = app.state.currentCourse || app.firebase.getDefaultCourse();
                         
+                        if (courses.length === 0) {
+                            container.innerHTML = '<p class="text-gray-400 italic text-sm">No hay cursos creados</p>';
+                            return;
+                        }
+
                         let html = '<div class="space-y-2">';
                         courses.forEach(c => {
                             const isActive = c === current;
-                            html += '<div class="flex items-center justify-between p-3 rounded-lg border ' + (isActive ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200') + ' transition">';
+                            html += '<div class="flex items-center justify-between p-3 rounded-lg border ' + (isActive ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200 hover:bg-gray-50') + ' transition cursor-pointer"';
+                            if (!isActive) html += ' onclick="app.firebase.switchCourse(\'' + c + '\')"';
+                            html += '>';
                             html += '<div class="flex items-center gap-2">';
                             html += '<i class="fa-solid fa-graduation-cap ' + (isActive ? 'text-blue-600' : 'text-gray-400') + '"></i>';
                             html += '<span class="font-semibold ' + (isActive ? 'text-blue-700' : 'text-gray-700') + '">' + c + '</span>';
@@ -5233,8 +5362,8 @@
                             html += '</div>';
                             html += '<div class="flex gap-2">';
                             if (!isActive) {
-                                html += '<button onclick="app.firebase.switchCourse(\'' + c + '\')" class="text-blue-600 hover:text-blue-800 text-sm font-semibold px-2 py-1 rounded hover:bg-blue-100 transition">Activar</button>';
-                                html += '<button onclick="app.firebase.deleteCourse(\'' + c + '\')" class="text-red-500 hover:text-red-700 transition hover-scale px-2" title="Eliminar"><i class="fa-solid fa-trash"></i></button>';
+                                html += '<button onclick="event.stopPropagation(); app.firebase.switchCourse(\'' + c + '\')" class="text-blue-600 hover:text-blue-800 text-sm font-semibold px-2 py-1 rounded hover:bg-blue-100 transition"><i class="fa-solid fa-arrow-right-to-bracket mr-1"></i>Activar</button>';
+                                html += '<button onclick="event.stopPropagation(); app.firebase.deleteCourse(\'' + c + '\')" class="text-red-500 hover:text-red-700 transition hover-scale px-2" title="Eliminar curso y todos sus datos"><i class="fa-solid fa-trash"></i></button>';
                             }
                             html += '</div></div>';
                         });
@@ -5242,16 +5371,39 @@
                         container.innerHTML = html;
                         
                         this.updateCourseDisplay();
+                        this.renderCourseSwitcher();
+                    },
+                    renderCourseSwitcher: function() {
+                        const container = document.getElementById('config-course-switcher');
+                        if (!container) return;
+                        
+                        const courses = app.state.courses || [];
+                        const current = app.state.currentCourse || app.firebase.getDefaultCourse();
+                        const otherCourses = courses.filter(c => c !== current);
+                        
+                        if (otherCourses.length === 0) {
+                            container.innerHTML = '';
+                            return;
+                        }
+
+                        let html = '<div class="flex items-center gap-1">';
+                        html += '<span class="text-xs text-gray-500 mr-1">Cambiar a:</span>';
+                        otherCourses.forEach(c => {
+                            html += '<button onclick="app.firebase.switchCourse(\'' + c + '\')" class="text-xs bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-700 font-semibold px-2 py-1 rounded border border-gray-200 hover:border-blue-300 transition" title="Activar curso ' + c + '">' + c + '</button>';
+                        });
+                        html += '</div>';
+                        container.innerHTML = html;
                     },
                     renderStudents: function() {
                         const tbody = document.getElementById('config-student-list-body');
                         const countEl = document.getElementById('config-student-count');
                         if (!tbody) return;
                         
-                        countEl.textContent = app.state.students.length;
+                        const students = Array.isArray(app.state.students) ? app.state.students : [];
+                        if (countEl) countEl.textContent = students.length;
                         tbody.innerHTML = '';
                         
-                        app.state.students.forEach((student, index) => {
+                        students.forEach((student, index) => {
                             const tr = document.createElement('tr');
                             tr.className = "border-b hover:bg-gray-50 transition-all duration-200 fade-in-element";
                             tr.style.animationDelay = (index * 0.05) + 's';
