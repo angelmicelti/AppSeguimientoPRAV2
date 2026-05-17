@@ -1,7 +1,7 @@
 // Service Worker - Gestión PRA-R
 // Versión: 1.0.0
 
-const CACHE_NAME = 'pra-r-cache-v2.2';
+const CACHE_NAME = 'pra-r-cache-v4';
 
 // Archivos esenciales para cachear en la instalación
 const PRECACHE_URLS = [
@@ -37,25 +37,35 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME)
             .then(cache => {
                 console.log('[SW] Precacheando archivos estáticos...');
-                // Cachear archivos locales primero
-                return cache.addAll(PRECACHE_URLS)
-                    .then(() => {
-                        // Intentar cachear CDN (no fallar si alguno no está disponible)
-                        return Promise.allSettled(
-                            CDN_URLS.map(url =>
-                                fetch(url, { mode: 'cors' })
-                                    .then(response => {
-                                        if (response.ok) {
-                                            return cache.put(url, response);
-                                        }
-                                    })
-                                    .catch(() => console.log('[SW] No se pudo cachear: ' + url))
-                            )
-                        );
-                    })
-                    .then(() => console.log('[SW] Instalación completada.'))
-                    .catch(err => console.error('[SW] Error en instalación:', err));
+                // Cachear cada archivo individualmente (no falla si uno no existe)
+                const localPromises = PRECACHE_URLS.map(url =>
+                    fetch(url)
+                        .then(response => {
+                            if (response.ok) {
+                                return cache.put(url, response);
+                            } else {
+                                console.warn('[SW] No se pudo cachear (status ' + response.status + '): ' + url);
+                            }
+                        })
+                        .catch(err => console.warn('[SW] Error al cachear: ' + url, err.message))
+                );
+                return Promise.allSettled(localPromises).then(() => {
+                    // Intentar cachear CDN (no fallar si alguno no está disponible)
+                    return Promise.allSettled(
+                        CDN_URLS.map(url =>
+                            fetch(url, { mode: 'cors' })
+                                .then(response => {
+                                    if (response.ok) {
+                                        return cache.put(url, response);
+                                    }
+                                })
+                                .catch(() => console.log('[SW] No se pudo cachear CDN: ' + url))
+                        )
+                    );
+                });
             })
+            .then(() => console.log('[SW] Instalación completada.'))
+            .catch(err => console.error('[SW] Error en instalación:', err))
     );
     // Activar inmediatamente sin esperar a que se cierre la ventana
     self.skipWaiting();
