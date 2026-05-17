@@ -128,12 +128,13 @@ self.addEventListener('fetch', event => {
 
     // --- Recursos estáticos locales ---
     if (url.origin === self.location.origin) {
+        var reqUrl = event.request ? event.request.url : '';
         // HTML y Service Worker: SIEMPRE desde la red (para actualizar la app)
-        if (event.request.url.endsWith('.html') || 
-            event.request.url.endsWith('.js') ||
-            event.request.url.endsWith('.json') ||
-            event.request.pathname === '/' ||
-            event.request.pathname.endsWith('/')) {
+        if (reqUrl.endsWith('.html') || 
+            reqUrl.endsWith('.js') ||
+            reqUrl.endsWith('.json') ||
+            url.pathname === '/' ||
+            url.pathname.endsWith('/')) {
             event.respondWith(
                 fetch(event.request)
                     .then(response => {
