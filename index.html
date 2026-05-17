@@ -5658,53 +5658,50 @@
                             tbody.appendChild(tr);
                         });
                     }
-        };
-
+        },
 
         // --- PWA INSTALL ---
         pwa: {
             deferredPrompt: null,
             init: function() {
-                const self = this;
-                // Capturar el evento beforeinstallprompt
-                window.addEventListener('beforeinstallprompt', (e) => {
+                var self = this;
+                window.addEventListener('beforeinstallprompt', function(e) {
                     e.preventDefault();
                     self.deferredPrompt = e;
-                    // Mostrar el botón de instalar
-                    const btn = document.getElementById('btn-install-pwa');
+                    var btn = document.getElementById('btn-install-pwa');
                     if (btn) btn.classList.remove('hidden');
                     console.log('[PWA] Instalación disponible');
                 });
-                // Ocultar botón si ya está instalada
-                window.addEventListener('appinstalled', () => {
+                window.addEventListener('appinstalled', function() {
                     self.deferredPrompt = null;
-                    const btn = document.getElementById('btn-install-pwa');
+                    var btn = document.getElementById('btn-install-pwa');
                     if (btn) btn.classList.add('hidden');
                     app.views.notify('Aplicación instalada correctamente', 'success');
                 });
             },
             install: function() {
                 if (!this.deferredPrompt) {
-                    return app.views.notify('La instalación no está disponible en este navegador. Prueba desde Chrome en escritorio o Android.', 'info');
+                    return app.views.notify('La instalación no está disponible en este navegador.', 'info');
                 }
                 this.deferredPrompt.prompt();
-                this.deferredPrompt.userChoice.then((choiceResult) => {
+                var self = this;
+                this.deferredPrompt.userChoice.then(function(choiceResult) {
                     if (choiceResult.outcome === 'accepted') {
                         console.log('[PWA] Usuario aceptó la instalación');
-                    } else {
-                        console.log('[PWA] Usuario rechazó la instalación');
                     }
-                    this.deferredPrompt = null;
-                    const btn = document.getElementById('btn-install-pwa');
+                    self.deferredPrompt = null;
+                    var btn = document.getElementById('btn-install-pwa');
                     if (btn) btn.classList.add('hidden');
                 });
             }
-        },
+        }
 
-        window.onload = function() {
-            app.pwa.init();
-            app.auth.checkAuth();
-        };
+    };
+
+    window.onload = function() {
+        app.pwa.init();
+        app.auth.checkAuth();
+    };
 
     </script>
     <script>
