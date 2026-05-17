@@ -1,18 +1,18 @@
 // Service Worker - Gestión PRA-R
-// Versión: 1.5.0
+// Versión: 1.0.0
 
-const CACHE_NAME = 'pra-r-cache-v1.5';
+const CACHE_NAME = 'pra-r-cache-v2';
 
 // Archivos esenciales para cachear en la instalación
 const PRECACHE_URLS = [
-    '/',
-    '/index.html',
-    '/manifest.json',
-    '/favicon.ico',
-    '/icons/favicon-16x16.png',
-    '/icons/favicon-32x32.png',
-    '/icons/apple-touch-icon.png',
-    '/icons/safari-pinned-tab.svg'
+    './',
+    './index.html',
+    './manifest.json',
+    './favicon.ico',
+    './icons/favicon-16x16.png',
+    './icons/favicon-32x32.png',
+    './icons/apple-touch-icon.png',
+    './icons/safari-pinned-tab.svg'
 ];
 
 // Dependencias externas a cachear (CDN)
@@ -146,9 +146,14 @@ self.addEventListener('fetch', event => {
                     .then(networkResponse => {
                         // Actualizar caché con la nueva versión
                         if (networkResponse.ok) {
-                            caches.open(CACHE_NAME).then(cache => {
-                                cache.put(event.request, networkResponse.clone());
-                            });
+                            try {
+                                const responseToCache = networkResponse.clone();
+                                caches.open(CACHE_NAME).then(cache => {
+                                    cache.put(event.request, responseToCache).catch(() => {});
+                                });
+                            } catch(e) {
+                                // Si clone() falla (body ya consumido), ignorar silenciosamente
+                            }
                         }
                         return networkResponse;
                     })
