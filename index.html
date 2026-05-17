@@ -393,8 +393,8 @@
                 <button id="btn-install-pwa" onclick="app.pwa.install()" class="hidden hover:text-green-300 transition hover-scale" title="Instalar aplicación">
                     <i class="fa-solid fa-download text-xl"></i>
                 </button>
-                <button onclick="app.router.navigate('config')" class="hover:text-blue-200 transition hover-scale" title="Configuración">
-                    <i class="fa-solid fa-gear text-xl"></i>
+                <button onclick="app.firebase.saveCourseData().then(() => app.views.notify('Datos guardados en la nube', 'success')).catch(e => app.views.notify('Error: ' + e.message, 'error'))" class="hover:text-blue-200 transition hover-scale" title="Guardar en la nube">
+                    <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
                 </button>
                 <button onclick="app.data.saveLocal()" class="hover:text-blue-200 transition hover-scale" title="Guardar Local">
                     <i class="fa-solid fa-floppy-disk text-xl"></i>
