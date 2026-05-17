@@ -630,21 +630,7 @@
                 </div>
             </div>
 
-            <!-- Accordion 1: Gestión de Usuarios -->
-            <div class="bg-white rounded-lg shadow mb-4 soft-shadow">
-                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.modules.config.toggleConfigAccordion('config-users-content')">
-                    <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-300" id="config-users-chevron"></i>
-                    <i class="fa-solid fa-users-cog text-blue-600"></i>
-                    <h3 class="font-bold text-gray-800">Gestión de Usuarios</h3>
-                </div>
-                <div id="config-users-content" class="config-accordion-content">
-                    <div class="p-4 border-t" id="config-users-panel">
-                        <!-- Contenido renderizado por JS: solo visible para admin -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Accordion 2: Gestión de Cursos Escolares -->
+            <!-- Accordion 1: Gestión de Cursos Escolares -->
             <div class="bg-white rounded-lg shadow mb-4 soft-shadow">
                 <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.modules.config.toggleConfigAccordion('config-courses-content')">
                     <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-300" id="config-courses-chevron"></i>
@@ -666,30 +652,7 @@
                 </div>
             </div>
 
-            <!-- Accordion 3: Importación y Exportación de Datos -->
-            <div class="bg-white rounded-lg shadow mb-4 soft-shadow">
-                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.modules.config.toggleConfigAccordion('config-data-content')">
-                    <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-300" id="config-data-chevron"></i>
-                    <i class="fa-solid fa-file-import text-yellow-600"></i>
-                    <h3 class="font-bold text-gray-800">Importación y Exportación de Datos</h3>
-                </div>
-                <div id="config-data-content" class="config-accordion-content">
-                    <div class="p-4 border-t">
-                        <p class="text-sm text-gray-500 mb-4">Los datos importados/exportados corresponden al curso escolar activo: <strong id="config-data-course-label"></strong></p>
-                        <div class="flex flex-col md:flex-row gap-4">
-                            <button onclick="app.data.exportJSON()" class="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded transition btn-primary ripple hover-lift">
-                                <i class="fa-solid fa-download"></i> Descargar JSON
-                            </button>
-                            <label class="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded transition btn-primary ripple hover-lift cursor-pointer">
-                                <i class="fa-solid fa-upload"></i> Cargar JSON
-                                <input type="file" class="hidden" onchange="app.data.importJSON(this)">
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Accordion 4: Gestión de Alumnado -->
+            <!-- Accordion 2: Gestión de Alumnado -->
             <div class="bg-white rounded-lg shadow mb-4 soft-shadow">
                 <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.modules.config.toggleConfigAccordion('config-students-content')">
                     <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-300" id="config-students-chevron"></i>
@@ -755,7 +718,21 @@
                 </div>
             </div>
 
-            <!-- Accordion 5: Borrado Masivo de Alumnado -->
+            <!-- Accordion 3: Gestión de Usuarios -->
+            <div class="bg-white rounded-lg shadow mb-4 soft-shadow">
+                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.modules.config.toggleConfigAccordion('config-users-content')">
+                    <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-300" id="config-users-chevron"></i>
+                    <i class="fa-solid fa-users-cog text-blue-600"></i>
+                    <h3 class="font-bold text-gray-800">Gestión de Usuarios</h3>
+                </div>
+                <div id="config-users-content" class="config-accordion-content">
+                    <div class="p-4 border-t" id="config-users-panel">
+                        <!-- Contenido renderizado por JS: solo visible para admin -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accordion 4: Borrado Masivo de Alumnado -->
             <div class="bg-white rounded-lg shadow mb-4 soft-shadow">
                 <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.modules.config.toggleConfigAccordion('config-delete-all-content')">
                     <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-300" id="config-delete-all-chevron"></i>
@@ -765,11 +742,73 @@
                 <div id="config-delete-all-content" class="config-accordion-content">
                     <div class="p-4 border-t">
                         <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
-                            <p class="text-sm text-gray-700 mb-3">Esto eliminará <strong>TODOS LOS ALUMNOS</strong> y sus datos asociados (materias, criterios, actividades, calificaciones). Esta acción <strong>NO se puede deshacer</strong>.</p>
+                            <p class="text-sm text-gray-700 mb-3">Esto eliminará <strong>TODOS LOS ALUMNOS</strong> del curso activo (<strong id="delete-all-course-label"></strong>) y sus datos asociados (materias, criterios, actividades, calificaciones). Esta acción <strong>NO se puede deshacer</strong>.</p>
                             <button onclick="app.modules.students.deleteAllStudents()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition btn-primary ripple hover-lift">
                                 <i class="fa-solid fa-trash-can mr-2"></i> BORRAR TODO EL ALUMNADO
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accordion 5: Importación y Exportación de Datos -->
+            <div class="bg-white rounded-lg shadow mb-4 soft-shadow">
+                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.modules.config.toggleConfigAccordion('config-data-content')">
+                    <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-300" id="config-data-chevron"></i>
+                    <i class="fa-solid fa-file-import text-yellow-600"></i>
+                    <h3 class="font-bold text-gray-800">Importación y Exportación de Datos</h3>
+                </div>
+                <div id="config-data-content" class="config-accordion-content">
+                    <div class="p-4 border-t space-y-6">
+
+                        <!-- EXPORTAR -->
+                        <div>
+                            <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-download text-blue-600"></i> Exportar datos</h4>
+
+                            <!-- Opción A: Exportar curso individual -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-3">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <input type="radio" name="export-mode" id="export-mode-course" value="course" checked class="w-4 h-4 text-blue-600" onchange="app.data.toggleExportMode()">
+                                    <label for="export-mode-course" class="font-semibold text-blue-800 cursor-pointer">Exportar un curso escolar</label>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-3 ml-6">Descarga los datos de alumnos de un curso concreto.</p>
+                                <div class="flex gap-2 ml-6" id="export-course-selector">
+                                    <select id="export-course-select" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <!-- Renderizado por JS -->
+                                    </select>
+                                    <button onclick="app.data.exportCourseJSON()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition btn-primary ripple hover-lift whitespace-nowrap">
+                                        <i class="fa-solid fa-download mr-1"></i> Exportar curso
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Opción B: Exportar toda la BD -->
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <input type="radio" name="export-mode" id="export-mode-full" value="full" class="w-4 h-4 text-green-600" onchange="app.data.toggleExportMode()">
+                                    <label for="export-mode-full" class="font-semibold text-green-800 cursor-pointer">Exportar toda la base de datos</label>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-3 ml-6">Descarga todos los cursos escolares con sus alumnos en un único archivo.</p>
+                                <div class="ml-6">
+                                    <button onclick="app.data.exportFullDB()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition btn-primary ripple hover-lift">
+                                        <i class="fa-solid fa-database mr-1"></i> Exportar base de datos completa
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="border-gray-200">
+
+                        <!-- IMPORTAR -->
+                        <div>
+                            <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-upload text-orange-600"></i> Importar datos</h4>
+                            <p class="text-sm text-gray-500 mb-3">Selecciona un archivo JSON exportado previamente. El sistema detectará automáticamente si contiene datos de un curso individual o de la base de datos completa.</p>
+                            <label class="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded transition btn-primary ripple hover-lift cursor-pointer w-full">
+                                <i class="fa-solid fa-upload"></i> Seleccionar archivo JSON para importar
+                                <input type="file" class="hidden" accept=".json" onchange="app.data.importJSON(this)">
+                            </label>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -2139,26 +2178,128 @@
                     }
                 },
                 exportJSON: function() {
-                    // Solo exportar los datos de alumnos (no userInfo, ni auth)
+                    // Función legacy: mantiene compatibilidad con llamadas antiguas
+                    this.exportCourseJSON(app.state.currentCourse || app.firebase.getDefaultCourse());
+                },
+                toggleExportMode: function() {
+                    // No necesita hacer nada especial, solo gestiona el radio visual
+                },
+                populateExportCourseSelect: function() {
+                    const select = document.getElementById('export-course-select');
+                    if (!select) return;
+                    const courses = app.state.courses || [];
+                    const current = app.state.currentCourse || app.firebase.getDefaultCourse();
+                    select.innerHTML = '';
+                    courses.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c;
+                        opt.textContent = c + (c === current ? ' (activo)' : '');
+                        if (c === current) opt.selected = true;
+                        select.appendChild(opt);
+                    });
+                },
+                exportCourseJSON: async function(courseYear) {
+                    if (!courseYear) {
+                        courseYear = document.getElementById('export-course-select') ? document.getElementById('export-course-select').value : null;
+                    }
+                    if (!courseYear) {
+                        return app.views.notify('Selecciona un curso para exportar', 'error');
+                    }
+
+                    let students = [];
+                    
+                    // Si es el curso activo, usar los datos ya cargados
+                    if (courseYear === (app.state.currentCourse || app.firebase.getDefaultCourse())) {
+                        students = app.state.students || [];
+                    } else {
+                        // Cargar desde Firebase para otro curso
+                        try {
+                            app.views.notify('Cargando datos del curso ' + courseYear + '...', 'info');
+                            const snap = await db.ref('courses/' + courseYear + '/data/students').once('value');
+                            if (snap.exists()) {
+                                let rawData = snap.val();
+                                // Decodificar claves
+                                rawData = app.decodeFirebaseKeys(rawData);
+                                // Convertir objeto a array si es necesario
+                                if (!Array.isArray(rawData) && typeof rawData === 'object') {
+                                    rawData = Object.values(rawData);
+                                }
+                                students = Array.isArray(rawData) ? rawData : [];
+                            }
+                        } catch(e) {
+                            return app.views.notify('Error al cargar datos del curso ' + courseYear, 'error');
+                        }
+                    }
+
                     const exportData = {
-                        students: app.state.students || [],
+                        students: students,
                         exportedAt: new Date().toISOString(),
-                        course: app.state.currentCourse || app.firebase.getDefaultCourse(),
+                        course: courseYear,
                         version: 2
                     };
-                    
-                    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
-                    const downloadAnchorNode = document.createElement('a');
-                    downloadAnchorNode.setAttribute("href", dataStr);
-                    
-                    // Include course year in filename
-                    const course = app.state.currentCourse || app.firebase.getDefaultCourse();
-                    const fechaHora = app.utils.formatDateTimeReadable();
-                    downloadAnchorNode.setAttribute("download", `BackupProgramaRecuperacion_${course}_${fechaHora}.json`);
 
-                    document.body.appendChild(downloadAnchorNode);
-                    downloadAnchorNode.click();
-                    downloadAnchorNode.remove();
+                    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+                    const anchor = document.createElement('a');
+                    anchor.setAttribute("href", dataStr);
+                    const fechaHora = app.utils.formatDateTimeReadable();
+                    anchor.setAttribute("download", 'BackupProgramaRecuperacion_' + courseYear + '_' + fechaHora + '.json');
+                    document.body.appendChild(anchor);
+                    anchor.click();
+                    anchor.remove();
+                    app.views.notify('Curso ' + courseYear + ' exportado (' + students.length + ' alumnos)', 'success');
+                },
+                exportFullDB: async function() {
+                    app.views.notify('Cargando todos los cursos desde Firebase...', 'info');
+                    
+                    try {
+                        const courses = app.state.courses || [];
+                        if (courses.length === 0) {
+                            return app.views.notify('No hay cursos para exportar', 'error');
+                        }
+
+                        const fullData = {
+                            _type: 'full_backup',
+                            exportedAt: new Date().toISOString(),
+                            appVersion: 'PRA-R',
+                            courses: {}
+                        };
+
+                        for (const courseYear of courses) {
+                            try {
+                                const snap = await db.ref('courses/' + courseYear + '/data/students').once('value');
+                                let students = [];
+                                if (snap.exists()) {
+                                    let rawData = snap.val();
+                                    rawData = app.decodeFirebaseKeys(rawData);
+                                    if (!Array.isArray(rawData) && typeof rawData === 'object') {
+                                        rawData = Object.values(rawData);
+                                    }
+                                    students = Array.isArray(rawData) ? rawData : [];
+                                }
+                                fullData.courses[courseYear] = {
+                                    students: students,
+                                    studentCount: students.length
+                                };
+                            } catch(e) {
+                                fullData.courses[courseYear] = { students: [], studentCount: 0, error: 'Error al cargar' };
+                            }
+                        }
+
+                        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullData, null, 2));
+                        const anchor = document.createElement('a');
+                        anchor.setAttribute("href", dataStr);
+                        const fechaHora = app.utils.formatDateTimeReadable();
+                        anchor.setAttribute("download", 'BackupCompleto_PRA-R_' + fechaHora + '.json');
+                        document.body.appendChild(anchor);
+                        anchor.click();
+                        anchor.remove();
+
+                        const totalStudents = Object.values(fullData.courses).reduce((sum, c) => sum + (c.studentCount || 0), 0);
+                        app.views.notify('Base de datos completa exportada (' + courses.length + ' cursos, ' + totalStudents + ' alumnos)', 'success');
+                    } catch(e) {
+                        console.error('Error exportando BD completa:', e);
+                        app.views.notify('Error al exportar: ' + e.message, 'error');
+                    }
                 },
                 importJSON: function(input) {
                     const file = input.files[0];
@@ -2170,18 +2311,58 @@
                     }
                     
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = async function(e) {
                         try {
                             const text = e.target.result;
-                            console.log('JSON importado (' + text.length + ' chars):', text.substring(0, 200) + '...');
+                            console.log('JSON importado (' + text.length + ' chars)');
                             const importedData = JSON.parse(text);
                             
-                            // Extraer el array de alumnos según el formato del archivo
+                            // Detectar tipo de archivo: BD completa o curso individual
+                            if (importedData._type === 'full_backup' && importedData.courses) {
+                                // === BACKUP COMPLETO ===
+                                const courseCount = Object.keys(importedData.courses).length;
+                                if (!confirm('Se detectó un backup completo de la base de datos con ' + courseCount + ' curso(s).\n\n¿Importar TODOS los cursos? Los datos existentes de esos cursos serán reemplazados.')) {
+                                    input.value = '';
+                                    return;
+                                }
+                                
+                                let totalImported = 0;
+                                for (const [courseYear, courseData] of Object.entries(importedData.courses)) {
+                                    const students = courseData.students || [];
+                                    if (students.length > 0) {
+                                        try {
+                                            const encodedStudents = app.encodeFirebaseKeys(students);
+                                            await db.ref('courses/' + courseYear + '/data').set({ students: encodedStudents });
+                                            totalImported += students.length;
+                                        } catch(err) {
+                                            console.error('Error importando curso ' + courseYear + ':', err);
+                                        }
+                                    }
+                                    // Asegurar que el curso existe en la lista
+                                    if (!app.state.courses.includes(courseYear)) {
+                                        app.state.courses.push(courseYear);
+                                    }
+                                }
+                                
+                                // Recargar datos del curso activo
+                                await app.firebase.loadCourseData();
+                                app.modules.config.renderCourses();
+                                app.modules.config.renderStudents();
+                                app.modules.config.populateExportCourseSelect();
+                                
+                                app.views.notify('Backup completo importado: ' + courseCount + ' curso(s), ' + totalImported + ' alumno(s)', 'success');
+                                input.value = '';
+                                return;
+                            }
+                            
+                            // === CURSO INDIVIDUAL ===
                             let students = null;
+                            let courseYear = importedData.course || app.state.currentCourse || app.firebase.getDefaultCourse();
                             
                             // Formato v2: { students: [...], version: 2, course: '...' }
                             if (Array.isArray(importedData.students)) {
                                 students = importedData.students;
+                                if (importedData.course) courseYear = importedData.course;
                             }
                             // Formato antiguo: { students: [...], settings: {...} }
                             else if (importedData.students && importedData.settings) {
@@ -2196,29 +2377,43 @@
                                 return app.views.notify('El archivo no contiene datos de alumnos válidos', 'error');
                             }
                             
-                            // IMPORTANTE: Solo reemplazar students, preservar auth y curso
-                            app.state.students = students;
-                            
-                            // Guardar en localStorage (solo alumnos, sin auth)
-                            try {
-                                const dataToSave = {
-                                    students: app.state.students,
-                                    courses: app.state.courses || [],
-                                    currentCourse: app.state.currentCourse || app.firebase.getDefaultCourse()
-                                };
-                                localStorage.setItem('recupData', JSON.stringify(dataToSave));
-                            } catch(e) {
-                                console.error('Error guardando en localStorage tras import:', e);
+                            // Si el archivo indica un curso diferente al activo, ofrecer opciones
+                            const currentCourse = app.state.currentCourse || app.firebase.getDefaultCourse();
+                            if (courseYear !== currentCourse) {
+                                const msg = 'Este archivo contiene datos del curso ' + courseYear + '.\n\n¿Qué desea hacer?\n\n- Aceptar: importar en el curso ' + courseYear + '\n- Cancelar: no importar';
+                                if (!confirm(msg)) {
+                                    input.value = '';
+                                    return;
+                                }
+                                // Importar directamente a ese curso en Firebase
+                                try {
+                                    const encodedStudents = app.encodeFirebaseKeys(students);
+                                    await db.ref('courses/' + courseYear + '/data').set({ students: encodedStudents });
+                                    // Asegurar que el curso existe en la lista
+                                    if (!app.state.courses.includes(courseYear)) {
+                                        app.state.courses.push(courseYear);
+                                    }
+                                    // Recargar para actualizar la vista
+                                    await app.firebase.loadCourseData();
+                                    app.modules.config.renderCourses();
+                                    app.modules.config.renderStudents();
+                                    app.modules.config.populateExportCourseSelect();
+                                    
+                                    app.views.notify('Curso ' + courseYear + ': ' + students.length + ' alumno(s) importados', 'success');
+                                    input.value = '';
+                                    return;
+                                } catch(err) {
+                                    return app.views.notify('Error al importar en Firebase: ' + err.message, 'error');
+                                }
                             }
                             
-                            // Actualizar vista
-                            app.views.updateStudentList();
-                            
-                            // Guardar en Firebase
+                            // Importar en el curso activo
+                            app.state.students = students;
                             app.firebase.saveCourseData();
+                            app.views.updateStudentList();
+                            app.modules.config.renderStudents();
                             
-                            const courseLabel = importedData.course ? ' (curso ' + importedData.course + ')' : '';
-                            app.views.notify('Importación correcta' + courseLabel + ': ' + students.length + ' alumno(s) cargados', 'success');
+                            app.views.notify('Curso ' + courseYear + ': ' + students.length + ' alumno(s) cargados', 'success');
                             input.value = '';
                         } catch(err) {
                             console.error('Error importando JSON:', err);
@@ -5086,9 +5281,10 @@
                     app.modules.config.renderStudents();
                     app.modules.config.renderCourseSwitcher();
                     app.modules.config.updateCourseDisplay();
-                    // Actualizar label de import/export
-                    const label = document.getElementById('config-data-course-label');
-                    if (label) label.textContent = courseYear;
+                    app.modules.config.populateExportCourseSelect();
+                    // Update delete-all course label
+                    const deleteLabel = document.getElementById('delete-all-course-label');
+                    if (deleteLabel) deleteLabel.textContent = courseYear;
                     app.views.notify('Curso cambiado a ' + courseYear, 'success');
                 },
                 deleteCourse: async function(courseYear) {
@@ -5117,10 +5313,11 @@
                         this.renderCourses();
                         this.renderStudents();
                         this.updateCourseDisplay();
+                        this.populateExportCourseSelect();
                         
-                        // Update data course label
-                        const label = document.getElementById('config-data-course-label');
-                        if (label) label.textContent = app.state.currentCourse || app.firebase.getDefaultCourse();
+                        // Update delete-all course label
+                        const deleteLabel = document.getElementById('delete-all-course-label');
+                        if (deleteLabel) deleteLabel.textContent = app.state.currentCourse || app.firebase.getDefaultCourse();
                     },
                     updateCourseDisplay: function() {
                         const el = document.getElementById('config-current-course');
