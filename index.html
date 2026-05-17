@@ -636,7 +636,7 @@
 
             <!-- Accordion 1: Gestión de Cursos Escolares -->
             <div class="bg-white rounded-lg shadow mb-4 soft-shadow">
-                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.modules.config.toggleConfigAccordion('config-courses-content')">
+                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.config.toggleConfigAccordion('config-courses-content')">
                     <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-300" id="config-courses-chevron"></i>
                     <i class="fa-solid fa-calendar-alt text-green-600"></i>
                     <h3 class="font-bold text-gray-800">Gestión de Cursos Escolares</h3>
@@ -658,7 +658,7 @@
 
             <!-- Accordion 2: Gestión de Alumnado -->
             <div class="bg-white rounded-lg shadow mb-4 soft-shadow">
-                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.modules.config.toggleConfigAccordion('config-students-content')">
+                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.config.toggleConfigAccordion('config-students-content')">
                     <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-300" id="config-students-chevron"></i>
                     <i class="fa-solid fa-users text-blue-600"></i>
                     <h3 class="font-bold text-gray-800">Gestión de Alumnado</h3>
@@ -724,7 +724,7 @@
 
             <!-- Accordion 3: Gestión de Usuarios -->
             <div class="bg-white rounded-lg shadow mb-4 soft-shadow">
-                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.modules.config.toggleConfigAccordion('config-users-content')">
+                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.config.toggleConfigAccordion('config-users-content')">
                     <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-300" id="config-users-chevron"></i>
                     <i class="fa-solid fa-users-cog text-blue-600"></i>
                     <h3 class="font-bold text-gray-800">Gestión de Usuarios</h3>
@@ -738,7 +738,7 @@
 
             <!-- Accordion 4: Borrado Masivo de Alumnado -->
             <div class="bg-white rounded-lg shadow mb-4 soft-shadow">
-                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.modules.config.toggleConfigAccordion('config-delete-all-content')">
+                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.config.toggleConfigAccordion('config-delete-all-content')">
                     <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-300" id="config-delete-all-chevron"></i>
                     <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
                     <h3 class="font-bold text-red-700">Borrado Masivo de Alumnado</h3>
@@ -757,7 +757,7 @@
 
             <!-- Accordion 5: Importación y Exportación de Datos -->
             <div class="bg-white rounded-lg shadow mb-4 soft-shadow">
-                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.modules.config.toggleConfigAccordion('config-data-content')">
+                <div class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors" onclick="app.config.toggleConfigAccordion('config-data-content')">
                     <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-300" id="config-data-chevron"></i>
                     <i class="fa-solid fa-file-import text-yellow-600"></i>
                     <h3 class="font-bold text-gray-800">Importación y Exportación de Datos</h3>
@@ -1956,7 +1956,7 @@
                                     break;
                                     
                                 case 'config':
-                                    app.modules.config.init();
+                                    app.config.init();
                                     break;
                             }
                         }, 50);
@@ -2375,8 +2375,8 @@
                                 
                                 // Recargar datos del curso activo
                                 await app.firebase.loadCourseData();
-                                app.modules.config.renderCourses();
-                                app.modules.config.renderStudents();
+                                app.config.renderCourses();
+                                app.config.renderStudents();
                                 app.data.populateExportCourseSelect();
                                 
                                 app.views.notify('Backup completo importado: ' + courseCount + ' curso(s), ' + totalImported + ' alumno(s)', 'success');
@@ -2424,8 +2424,8 @@
                                     }
                                     // Recargar para actualizar la vista
                                     await app.firebase.loadCourseData();
-                                    app.modules.config.renderCourses();
-                                    app.modules.config.renderStudents();
+                                    app.config.renderCourses();
+                                    app.config.renderStudents();
                                     app.data.populateExportCourseSelect();
                                     
                                     app.views.notify('Curso ' + courseYear + ': ' + students.length + ' alumno(s) importados', 'success');
@@ -2440,7 +2440,7 @@
                             app.state.students = students;
                             app.firebase.saveCourseData();
                             app.views.updateStudentList();
-                            app.modules.config.renderStudents();
+                            app.config.renderStudents();
                             
                             app.views.notify('Curso ' + courseYear + ': ' + students.length + ' alumno(s) cargados', 'success');
                             input.value = '';
@@ -5190,7 +5190,7 @@
                     try {
                         await db.ref('users/' + uid + '/role').set(role);
                         app.views.notify('Rol actualizado', 'success');
-                        app.modules.config.renderUsers();
+                        app.config.renderUsers();
                     } catch(e) {
                         app.views.notify('Error al actualizar rol', 'error');
                     }
@@ -5204,7 +5204,7 @@
                     try {
                         await db.ref('users/' + uid).remove();
                         app.views.notify('Usuario eliminado del sistema', 'success');
-                        app.modules.config.renderUsers();
+                        app.config.renderUsers();
                     } catch(e) {
                         app.views.notify('Error al eliminar usuario', 'error');
                     }
@@ -5265,7 +5265,7 @@
                         await db.ref('users/' + uid + '/status').set(newStatus);
                         const statusLabels = { active: 'activado', blocked: 'bloqueado', pending: 'pendiente' };
                         app.views.notify('Usuario ' + (statusLabels[newStatus] || newStatus), 'success');
-                        app.modules.config.renderUsers();
+                        app.config.renderUsers();
                     } catch(e) {
                         app.views.notify('Error al cambiar estado del usuario', 'error');
                     }
@@ -5295,7 +5295,7 @@
                         await db.ref('courses/' + courseYear + '/data').set({ students: [] });
                         if (!app.state.courses) app.state.courses = [];
                         app.state.courses.push(courseYear);
-                        app.modules.config.renderCourses();
+                        app.config.renderCourses();
                         app.data.populateExportCourseSelect();
                         app.views.notify('Curso ' + courseYear + ' creado', 'success');
                     } catch(e) {
@@ -5307,10 +5307,10 @@
                     app.state.currentCourse = courseYear;
                     app.state.students = [];
                     await this.loadCourseData();
-                    app.modules.config.renderCourses();
-                    app.modules.config.renderStudents();
-                    app.modules.config.renderCourseSwitcher();
-                    app.modules.config.updateCourseDisplay();
+                    app.config.renderCourses();
+                    app.config.renderStudents();
+                    app.config.renderCourseSwitcher();
+                    app.config.updateCourseDisplay();
                     app.data.populateExportCourseSelect();
                     // Update delete-all course label
                     const deleteLabel = document.getElementById('delete-all-course-label');
@@ -5326,7 +5326,7 @@
                     try {
                         await db.ref('courses/' + courseYear).remove();
                         app.state.courses = app.state.courses.filter(c => c !== courseYear);
-                        app.modules.config.renderCourses();
+                        app.config.renderCourses();
                         app.data.populateExportCourseSelect();
                         app.views.notify('Curso eliminado', 'success');
                     } catch(e) {
@@ -5435,7 +5435,7 @@
                         html += '</div>';
                         html += '<div class="flex items-center gap-3">';
                         html += '<div><label class="block text-xs font-semibold text-gray-600 mb-1">Tu contraseña (confirmar)</label><input type="password" id="admin-password-confirm" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500" placeholder="Confirma tu contraseña de admin"></div>';
-                        html += '<div class="flex items-end"><button onclick="app.modules.config.handleCreateUser()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-bold text-sm transition btn-primary ripple hover-lift whitespace-nowrap"><i class="fa-solid fa-user-plus mr-1"></i> Crear Usuario</button></div>';
+                        html += '<div class="flex items-end"><button onclick="app.config.handleCreateUser()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-bold text-sm transition btn-primary ripple hover-lift whitespace-nowrap"><i class="fa-solid fa-user-plus mr-1"></i> Crear Usuario</button></div>';
                         html += '</div>';
                         html += '<p id="create-user-feedback" class="text-sm mt-2 hidden"></p>';
                         html += '</div>';
@@ -5449,7 +5449,7 @@
                             html += '<span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">' + users.filter(u => u.status === 'blocked').length + ' bloqueados</span>';
                         }
                         html += '</div>';
-                        html += '<div class="relative"><i class="fa-solid fa-search absolute left-3 top-2.5 text-gray-400 text-sm"></i><input type="text" id="user-search-input" oninput="app.modules.config.filterUsers()" class="border border-gray-300 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-64" placeholder="Buscar por nombre o usuario..."></div>';
+                        html += '<div class="relative"><i class="fa-solid fa-search absolute left-3 top-2.5 text-gray-400 text-sm"></i><input type="text" id="user-search-input" oninput="app.config.filterUsers()" class="border border-gray-300 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-64" placeholder="Buscar por nombre o usuario..."></div>';
                         html += '</div>';
                         
                         // --- Tabla de usuarios ---
