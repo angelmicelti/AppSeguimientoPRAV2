@@ -1823,10 +1823,22 @@
                 if (!Array.isArray(app.state.students)) {
                     app.state.students = [];
                 }
-                // loadLocal solo como respaldo si Firebase no cargó datos
-                // (loadCourseData ya sincronizó localStorage si tuvo éxito)
+                // loadLocal solo como respaldo si Firebase NO cargó datos.
+                // loadCourseData() ya sincronizó localStorage si tuvo éxito,
+                // pero si students sigue vacío podría ser offline, así que cargamos.
+                // IMPORTANTE: No dejar que loadLocal sobrescriba app.state.courses
+                // con datos antiguos de localStorage si ya los cargamos desde Firebase.
                 if (app.state.students.length === 0) {
+                    const prevCourses = app.state.courses;
+                    const prevCurrentCourse = app.state.currentCourse;
                     this.data.loadLocal();
+                    // Si Firebase ya cargó cursos, restaurar esa lista (es más actual)
+                    if (prevCourses && prevCourses.length > 0) {
+                        app.state.courses = prevCourses;
+                    }
+                    if (prevCurrentCourse) {
+                        app.state.currentCourse = prevCurrentCourse;
+                    }
                     // Volver a asegurar que sea array tras loadLocal
                     if (!Array.isArray(app.state.students)) {
                         app.state.students = [];
@@ -5071,10 +5083,20 @@
                     app.state.currentCourse = course;
                     
                     try {
-                        // 1. Siempre cargar la lista COMPLETA de cursos desde Firebase
-                        const coursesSnap = await db.ref('courses').once('value');
-                        if (coursesSnap.exists()) {
-                            app.state.courses = Object.keys(coursesSnap.val());
+                        // 1. Cargar la lista de cursos desde Firebase
+                        // Primero intentar desde courses/list (formato fiable)
+                        const listSnap = await db.ref('courses/list').once('value');
+                        if (listSnap.exists()) {
+                            app.state.courses = Object.keys(listSnap.val());
+                        } else {
+                            // Fallback: deducir cursos de las claves bajo courses/ que tengan /data
+                            const coursesSnap = await db.ref('courses').once('value');
+                            if (coursesSnap.exists()) {
+                                const raw = coursesSnap.val();
+                                app.state.courses = Object.keys(raw).filter(key => 
+                                    key !== 'list' && typeof raw[key] === 'object' && raw[key].data !== undefined
+                                );
+                            }
                         }
                         // Asegurar que el curso actual está en la lista
                         if (app.state.courses && !app.state.courses.includes(course)) {
@@ -5163,9 +5185,16 @@
                     try {
                         // Codificar claves para Firebase: reemplazar . por · (U+00B7)
                         const encodedStudents = app.encodeFirebaseKeys(app.state.students);
+                        // Guardar datos del curso actual
                         await db.ref('courses/' + course + '/data').set({
                             students: encodedStudents
                         });
+                        // Guardar también la lista completa de cursos para que loadCourseData los encuentre
+                        const coursesList = {};
+                        (app.state.courses || []).forEach(c => {
+                            coursesList[c] = true; // marca de existencia
+                        });
+                        await db.ref('courses/list').set(coursesList);
                     } catch(e) {
                         console.error('Error saving course data:', e);
                         app.views.notify('Error al guardar en Firebase: ' + e.message, 'error');
@@ -5295,6 +5324,10 @@
                         await db.ref('courses/' + courseYear + '/data').set({ students: [] });
                         if (!app.state.courses) app.state.courses = [];
                         app.state.courses.push(courseYear);
+                        // Actualizar la lista de cursos en Firebase
+                        const coursesList = {};
+                        app.state.courses.forEach(c => { coursesList[c] = true; });
+                        await db.ref('courses/list').set(coursesList);
                         app.config.renderCourses();
                         app.data.populateExportCourseSelect();
                         app.views.notify('Curso ' + courseYear + ' creado', 'success');
@@ -5326,6 +5359,10 @@
                     try {
                         await db.ref('courses/' + courseYear).remove();
                         app.state.courses = app.state.courses.filter(c => c !== courseYear);
+                        // Actualizar courses/list
+                        const coursesList = {};
+                        app.state.courses.forEach(c => { coursesList[c] = true; });
+                        await db.ref('courses/list').set(coursesList);
                         app.config.renderCourses();
                         app.data.populateExportCourseSelect();
                         app.views.notify('Curso eliminado', 'success');
