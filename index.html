@@ -5079,7 +5079,18 @@
                     return year + '-' + (year + 1);
                 },
                 loadCourseData: async function() {
-                    const course = app.state.currentCourse || this.getDefaultCourse();
+                    // Intentar recuperar el último curso activo:
+                    // 1) app.state.currentCourse (ya en memoria)
+                    // 2) localStorage (guardado por saveLocal o por loadCourseData anterior)
+                    // 3) getDefaultCourse() (cálculo por fecha)
+                    let course = app.state.currentCourse;
+                    if (!course) {
+                        try {
+                            const saved = JSON.parse(localStorage.getItem('recupData'));
+                            if (saved && saved.currentCourse) course = saved.currentCourse;
+                        } catch(e) {}
+                    }
+                    if (!course) course = this.getDefaultCourse();
                     app.state.currentCourse = course;
                     
                     try {
